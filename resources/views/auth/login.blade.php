@@ -13,15 +13,17 @@
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <!-- Replace the existing password input with: -->
+        <div class="mb-4">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                Password
+            </label>
+            <x-password-input 
+                id="password" 
+                name="password" 
+                placeholder="Enter your password"
+                required
+            />
         </div>
 
         <!-- Remember Me -->
@@ -40,7 +42,7 @@
                     <a class="text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" 
                        href="{{ route('register') }}" 
                        style="color: #1447e6 !important;">
-                        {{ __('Don’t have an account yet?') }}
+                        {{ __("Don't have an account yet?") }}
                     </a>
                 @endif
         
@@ -48,7 +50,7 @@
                     <a class="text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"  
                        href="{{ route('password.request') }}"
                        style="color: #1447e6 !important;">
-                        {{ __('Forgot your password?') }}
+                        {{ __("Forgot your password?") }}
                     </a>
                 @endif
             </div>

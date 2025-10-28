@@ -13,22 +13,41 @@
         @csrf
         @method('put')
 
-        <div>
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
+        <!-- Replace password inputs with: -->
+        <div class="mb-4">
+            <label for="current_password" class="block text-sm font-medium text-gray-700 mb-2">
+                Current Password
+            </label>
+            <x-password-input 
+                id="current_password" 
+                name="current_password" 
+                placeholder="Enter current password"
+                required
+            />
         </div>
-
-        <div>
-            <x-input-label for="update_password_password" :value="__('New Password')" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
+        
+        <div class="mb-4">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                New Password
+            </label>
+            <x-password-input 
+                id="password" 
+                name="password" 
+                placeholder="Enter new password"
+                required
+            />
         </div>
-
-        <div>
-            <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
+        
+        <div class="mb-4">
+            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">
+                Confirm New Password
+            </label>
+            <x-password-input 
+                id="password_confirmation"
+                name="password_confirmation" 
+                placeholder="Confirm new password"
+                required
+            />
         </div>
 
         <div class="flex items-center gap-4">

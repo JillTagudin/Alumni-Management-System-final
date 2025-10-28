@@ -29,6 +29,8 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'role' => 'Alumni', // Default role
+            'student_number' => fake()->unique()->numerify('STU####'),
         ];
     }
 

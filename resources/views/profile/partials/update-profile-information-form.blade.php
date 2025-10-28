@@ -13,9 +13,45 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
         @csrf
         @method('patch')
+
+        <!-- Profile Picture Section -->
+        <div>
+            <x-input-label for="profile_picture" :value="__('Profile Picture')" />
+            <div class="mt-2 flex items-center space-x-4">
+                <!-- Current Profile Picture Preview -->
+                <div class="flex-shrink-0">
+                    @if($user->profile_picture)
+                        <img class="h-20 w-20 rounded-full object-cover border-2 border-gray-300" 
+                             src="{{ $user->profile_picture_url }}" 
+                             alt="Current profile picture" 
+                             id="current-picture">
+                    @else
+                        <div class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center border-2 border-gray-300" id="current-picture">
+                            <span class="text-gray-600 font-medium text-lg">
+                                {{ $user->initials }}
+                            </span>
+                        </div>
+                    @endif
+                </div>
+                
+                <!-- Upload Section -->
+                <div class="flex-1">
+                    <input type="file" 
+                           id="profile_picture" 
+                           name="profile_picture" 
+                           accept="image/*" 
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" 
+                           onchange="previewImage(this)">
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ __('JPG, PNG, or GIF. Max size: 2MB') }}
+                    </p>
+                    <x-input-error class="mt-2" :messages="$errors->get('profile_picture')" />
+                </div>
+            </div>
+        </div>
 
         <div>
             <x-input-label for="name" :value="__('Name')" />
@@ -29,24 +65,23 @@
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ __('Your email address is unverified.') }}
+                 <div>
+                     <p class="text-sm mt-2 text-gray-800">
+                         {{ __('Your email address is unverified.') }}
 
-                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
-                    </p>
+                         <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                             {{ __('Click here to re-send the verification email.') }}
+                         </button>
+                     </p>
 
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ __('A new verification link has been sent to your email address.') }}
-                        </p>
-                    @endif
-                </div>
-            @endif
+                     @if (session('status') === 'verification-link-sent')
+                         <p class="mt-2 font-medium text-sm text-green-600">
+                             {{ __('A new verification link has been sent to your email address.') }}
+                         </p>
+                     @endif
+                 </div>
+             @endif
         </div>
-
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
@@ -61,4 +96,19 @@
             @endif
         </div>
     </form>
+
+    <script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const currentPicture = document.getElementById('current-picture');
+                currentPicture.innerHTML = `<img class="h-20 w-20 rounded-full object-cover border-2 border-gray-300" src="${e.target.result}" alt="Profile picture preview">`;
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    </script>
 </section>

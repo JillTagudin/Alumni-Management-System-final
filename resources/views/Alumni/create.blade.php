@@ -5,13 +5,12 @@
         </h2>
     </x-slot>
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Create Alumni Record</title>
   <style>
     body {
@@ -78,10 +77,9 @@
       margin-bottom: 20px;
       border: 1px solid #f5c6cb;
       border-radius: 4px;
-      transition: opacity 0.5s;  /* Add transition */
+      transition: opacity 0.5s;
     }
 
-    /* Add modal styles */
     .modal {
       display: none;
       position: fixed;
@@ -142,7 +140,6 @@
     </div>
 
     <script>
-      // Add timeout for error messages
       setTimeout(() => {
         let errorList = document.getElementById("errorList");
         if (errorList) {
@@ -154,13 +151,25 @@
     </script>
     @endif
 
+    <!-- Success Message -->
+    @if(session('success'))
+        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative success-message" role="alert">
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
+
     <form method="post" action="{{ route('Alumni.store') }}" id="createForm">
       @csrf
       @method('post')
 
       <div class="form-group">
-        <label for="StudentID">Student ID</label>
-        <input type="number" id="StudentID" name="StudentID" placeholder="Student ID" required />
+        <label for="AlumniID">Alumni ID</label>
+        <input type="text" id="AlumniID" name="AlumniID" placeholder="Alumni ID" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="student_number">Student Number</label>
+        <input type="text" id="student_number" name="student_number" placeholder="Student Number" required />
       </div>
 
       <div class="form-group">
@@ -175,16 +184,35 @@
 
       <div class="form-group">
         <label for="Gender">Gender</label>
-        <input type="text" id="Gender" name="Gender" placeholder="Gender" required />
+        <select id="Gender" name="Gender" required>
+          <option value="">Please fill out this field.</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
       </div>
 
       <div class="form-group">
         <label for="Course">Course</label>
-        <input type="text" id="Course" name="Course" placeholder="Course" required />
+        <select id="Course" name="Course" required>
+          <option value="">Please fill out this field.</option>
+          <option value="BS Information Technology">BS Information Technology</option>
+          <option value="BS Hospitality Management">BS Hospitality Management</option>
+          <option value="BS Office Administration">BS Office Administration</option>
+          <option value="BS Business Administration">BS Business Administration</option>
+          <option value="BS Criminology">BS Criminology</option>
+          <option value="Bachelor of Elementary Education">Bachelor of Elementary Education</option>
+          <option value="Bachelor of Secondary Education">Bachelor of Secondary Education</option>
+          <option value="BS Computer Engineering">BS Computer Engineering</option>
+          <option value="BS Tourism Management">BS Tourism Management</option>
+          <option value="BS Entrepreneurship">BS Entrepreneurship</option>
+          <option value="BS Accounting Information System">BS Accounting Information System</option>
+          <option value="BS Psychology">BS Psychology</option>
+          <option value="BL Information Science">BL Information Science</option>
+        </select>
       </div>
 
       <div class="form-group">
-        <label for="Section">Section</label>
+        <label for="Section">Year/Section</label>
         <input type="text" id="Section" name="Section" placeholder="Section" required />
       </div>
 
@@ -193,9 +221,21 @@
         <input type="text" id="Batch" name="Batch" placeholder="Batch" required />
       </div>
 
+      <!-- Contact -->
       <div class="form-group">
         <label for="Contact">Contact</label>
-        <input type="text" id="Contact" name="Contact" placeholder="Contact" required />
+        <input
+          type="tel"
+          id="Contact"
+          name="Contact"
+          placeholder="Contact"
+          required
+          inputmode="numeric"
+          pattern="\d{11}"
+          minlength="11"
+          maxlength="11"
+          title="Contact number must be exactly 11 digits"
+        />
       </div>
 
       <div class="form-group">
@@ -214,11 +254,21 @@
       </div>
 
       <div class="form-group">
-        <input type="button" value="Submit Record" onclick="showConfirmModal()" style="background-color: #0000FF; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px;"/>
+        @if(auth()->user()->role === 'Staff')
+          <input type="button" value="Submit Record" onclick="handleStaffSubmission()" style="background-color: #0000FF; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px;"/>
+        @elseif(auth()->user()->role === 'SuperAdmin')
+          <input type="button" value="Submit Record" onclick="handleSuperAdminSubmission()" style="background-color: #0000FF; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px;"/>
+        @else
+          <input type="button" value="Submit Record" onclick="showConfirmModal()" style="background-color: #0000FF; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px;"/>
+        @endif
       </div>
     </form>
 
-    <!-- Add modal HTML -->
+    @if(auth()->user()->role === 'Staff')
+      <x-staff-approval-modal />
+    @endif
+
+    @if(auth()->user()->role === 'Admin' || auth()->user()->role === 'SuperAdmin')
     <div id="confirmModal" class="modal">
       <div class="modal-content">
         <h2 style="margin-top: 0;">Confirm Submission</h2>
@@ -229,8 +279,10 @@
         </div>
       </div>
     </div>
+    @endif
 
     <script>
+      @if(auth()->user()->role === 'Admin' || auth()->user()->role === 'SuperAdmin')
       const modal = document.getElementById('confirmModal');
       const form = document.getElementById('createForm');
 
@@ -243,15 +295,70 @@
       }
 
       function submitForm() {
+        console.log('Submitting form...');
         form.submit();
       }
 
-      // Close modal when clicking outside
+      function handleSuperAdminSubmission() {
+        console.log('SuperAdmin submission triggered');
+        showConfirmModal();
+      }
+
       window.onclick = function(event) {
         if (event.target == modal) {
           hideConfirmModal();
         }
       }
+      @endif
+
+      @if(auth()->user()->role === 'Staff')
+      function handleStaffSubmission() {
+          const form = document.getElementById('createForm');
+          
+          const staffInput = document.createElement('input');
+          staffInput.type = 'hidden';
+          staffInput.name = 'staff_submission';
+          staffInput.value = '1';
+          form.appendChild(staffInput);
+          
+          form.submit();
+      }
+      @endif
+
+      // Form validation
+      document.getElementById('createForm').addEventListener('submit', function(e) {
+        console.log('Form submit event triggered');
+        
+        // Basic validation
+        const requiredFields = ['student_number', 'Fullname', 'Section', 'Contact', 'Emailaddress'];
+        let isValid = true;
+        
+        requiredFields.forEach(fieldName => {
+          const field = document.getElementById(fieldName);
+          if (!field.value.trim()) {
+            console.log(`Field ${fieldName} is empty`);
+            isValid = false;
+          }
+        });
+        
+        if (!isValid) {
+          e.preventDefault();
+          alert('Please fill in all required fields');
+          return false;
+        }
+        
+        console.log('Form validation passed, submitting...');
+      });
+
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => {
+        let successMessage = document.querySelector(".success-message");
+        if (successMessage) {
+          successMessage.style.transition = "opacity 0.5s";
+          successMessage.style.opacity = "0";
+          setTimeout(() => successMessage.remove(), 500);
+        }
+      }, 3000);
     </script>
   </div>
 </body>

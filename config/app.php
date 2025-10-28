@@ -123,4 +123,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | AI Analytics Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This value determines whether AI analytics should be enabled for the
+    | application. When disabled, the dashboard will not generate AI insights
+    | and will return empty arrays instead.
+    |
+    */
+
+    'ai_analytics_enabled' => env('AI_ANALYTICS_ENABLED', false),
+
 ];

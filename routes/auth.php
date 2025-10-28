@@ -31,8 +31,25 @@ Route::middleware('guest')->group(function () {
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 
+    Route::get('verify-password-reset/{token}', [PasswordResetLinkController::class, 'verify'])
+        ->name('password.reset.verify');
+
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+    Route::get('two-factor-challenge', [\App\Http\Controllers\Auth\TwoFactorController::class, 'show'])
+        ->name('two-factor.challenge');
+
+    Route::post('two-factor-challenge', [\App\Http\Controllers\Auth\TwoFactorController::class, 'verify'])
+        ->name('two-factor.verify');
+
+    Route::post('two-factor-resend', [\App\Http\Controllers\Auth\TwoFactorController::class, 'resend'])
+        ->name('two-factor.resend');
+
+    Route::post('two-factor-send', [\App\Http\Controllers\Auth\TwoFactorController::class, 'sendCode'])
+        ->name('two-factor.send');
+
+
 });
 
 Route::middleware('auth')->group(function () {

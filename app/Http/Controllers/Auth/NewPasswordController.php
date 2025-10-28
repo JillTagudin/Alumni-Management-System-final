@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
@@ -46,6 +47,14 @@ class NewPasswordController extends Controller
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
                 ])->save();
+
+                // Log password reset
+                ActivityLog::log(
+                    'password_reset',
+                    'User reset their password via email link',
+                    $user->id,
+                    ['email' => $user->email]
+                );
 
                 event(new PasswordReset($user));
             }

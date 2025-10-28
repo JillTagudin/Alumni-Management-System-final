@@ -13,20 +13,17 @@ return new class extends Migration
     {
         Schema::create('alumnis', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('StudentID');
+            $table->string('StudentID')->unique(); // Add unique constraint
             $table->string('Fullname');
             $table->integer('Age');
             $table->string('Gender');
             $table->string('Course');
-            $table->integer('Section');
-            $table->integer('Batch');
-            $table->bigInteger('Contact');
+            $table->string('Section');
+            $table->string('Batch');
+            $table->string('Contact');
             $table->string('Address');
-            $table->text('Emailaddress');
+            $table->string('Emailaddress')->nullable();
             $table->string('Occupation');
-
-
-
             $table->timestamps();
         });
     }
